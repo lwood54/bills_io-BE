@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-// const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
 const mongoose = require("mongoose");
@@ -13,11 +12,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 const { Schema, model } = mongoose;
-
-const messageSchema = new Schema({
-  message: String,
-});
-const Message = model("Message", messageSchema);
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -32,29 +26,6 @@ app.use(cors(corsOptions));
 
 // if servering static resources
 // app.use(express.static("public"));
-
-app.get("/message/:id", (req, res) => {
-  Message.findById(req.params.id, (err, message) => {
-    res.json({
-      message: message.message,
-      id: message._id,
-    });
-  });
-});
-
-app.post("/api/new-message", (req, res) => {
-  const msg = new Message({
-    message: req.body.message,
-  });
-  msg.save((err, data) => {
-    if (err) return data.json({ error: err });
-    res.json({
-      status: 200,
-      message: data.message,
-      _id: data._id,
-    });
-  });
-});
 
 const billsSchema = new Schema({
   balance: Number,
@@ -85,12 +56,13 @@ app.post("/api/new-user", (req, res) => {
 
 app.put("/api/user/:id/add-bill", (req, res) => {
   User.findById(req.params.id, (err, user) => {
-    console.log("req.body", req.body);
-    console.log("user found", user);
+    if (err) res.json({ error: err });
     user.bills.push(req.body);
     user.save((saveErr, data) => {
+      if (saveErr) res.json({ error: saveErr });
+      console.log("data", data);
       res.json({
-        message: `Successfully updated ${user.username} with bill: ${data.name}`,
+        message: `Successfully updated ${user.username} with bill: ${req.body.name}`,
       });
     });
   });
