@@ -62,9 +62,8 @@ app.put("/api/user/:id/add-bill", (req, res) => {
   User.findById(req.params.id, (err, user) => {
     if (err) res.json({ error: err });
     user.bills.push(req.body);
-    user.save((saveErr, data) => {
+    user.save((saveErr) => {
       if (saveErr) res.json({ error: saveErr });
-      console.log("data", data);
       res.json({
         message: `Successfully updated ${user.username} with bill: ${req.body.name}`,
       });
@@ -83,12 +82,11 @@ app.get("/api/user/:id/bills", (req, res) => {
 app.delete("/api/user/:id/remove-bill", (req, res) => {
   User.findById(req.params.id, (err, user) => {
     if (err) res.json({ error: err });
-    user.bills = user.bills.filter((bill) => {
-      return bill._id.toString() !== req.body.id;
-    });
-    user.save((saveErr, data) => {
+    user.bills = user.bills.filter(
+      (bill) => bill._id.toString() !== req.body.id
+    );
+    user.save((saveErr) => {
       if (saveErr) res.json({ error: saveErr });
-      console.log("data", data);
       res.json({
         message: `Successfully removed bill.`,
       });
