@@ -34,12 +34,15 @@ const billsSchema = new Schema({
   interest: Number,
   name: String,
 });
+
 const userSchema = new Schema({
   username: String,
   bills: [billsSchema],
 });
+
 const User = model("User", userSchema);
 
+// add a new user
 app.post("/api/new-user", (req, res) => {
   const newUser = new User({
     username: req.body.username,
@@ -54,6 +57,7 @@ app.post("/api/new-user", (req, res) => {
   });
 });
 
+// add a new bill to bills list for specified user
 app.put("/api/user/:id/add-bill", (req, res) => {
   User.findById(req.params.id, (err, user) => {
     if (err) res.json({ error: err });
@@ -68,9 +72,27 @@ app.put("/api/user/:id/add-bill", (req, res) => {
   });
 });
 
+// get list of bills for specified user
 app.get("/api/user/:id/bills", (req, res) => {
   User.findById(req.params.id, (err, user) => {
     res.json(user);
+  });
+});
+
+// remove bill from bills list for specified user
+app.delete("/api/user/:id/remove-bill", (req, res) => {
+  User.findById(req.params.id, (err, user) => {
+    if (err) res.json({ error: err });
+    user.bills = user.bills.filter((bill) => {
+      return bill._id.toString() !== req.body.id;
+    });
+    user.save((saveErr, data) => {
+      if (saveErr) res.json({ error: saveErr });
+      console.log("data", data);
+      res.json({
+        message: `Successfully removed bill.`,
+      });
+    });
   });
 });
 
