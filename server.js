@@ -94,6 +94,12 @@ app.delete("/api/user/:id/remove-bill", (req, res) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.json({
+    message: "Routes working.",
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`App listening on port: ${PORT}`);
 });
